@@ -55,6 +55,7 @@
   async function verify(attempt = 0) {
     if (!current || checking) return;
     checking = true;
+    buy.hidden = true;
     retry.hidden = true;
     status.textContent = "Confirming your payment and preparing your template…";
     try {
@@ -66,6 +67,7 @@
       } else {
         status.textContent = response.status === 202 ? "Payment is still processing. Check again in a moment; you do not need to pay twice." : (data.error || "We could not confirm this purchase yet. If you paid, contact support with your Paddle receipt.");
         retry.hidden = false;
+        if (response.status === 404) buy.hidden = false;
       }
     } catch {
       status.textContent = "We could not reach purchase verification. If you paid, keep this page open and retry. Your Paddle receipt can also help support recover access.";
