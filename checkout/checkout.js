@@ -95,7 +95,7 @@
     activeToken = randomToken();
     status.textContent = "Complete your payment in Paddle. Your template will appear here afterward.";
     try {
-      Paddle.Checkout.open({ items: [{ priceId: PRICE, quantity: 1 }], customData: { delivery_token: activeToken }, settings: { displayMode: "overlay", theme: "light", locale: "en", allowQuantity: false } });
+      Paddle.Checkout.open({ items: [{ priceId: PRICE, quantity: 1 }], customData: { delivery_token: activeToken }, settings: { displayMode: "overlay", theme: "light", locale: "en" } });
     } catch { status.textContent = "Checkout could not open. Please refresh this page or contact support."; }
   }
   buy.addEventListener("click", openCheckout);
