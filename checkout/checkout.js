@@ -62,10 +62,14 @@
       const { response, data } = await request("/api/receipt", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ transactionId: current.transactionId, deliveryToken: current.deliveryToken }) });
       if (response.ok && data.status === "ready") showAccess(data);
       else if (response.status === 202 && attempt < 12) {
-        status.textContent = "Paddle is finishing your payment. This page will check again shortly.";
+        buy.hidden = false;
+        buy.textContent = "Resume checkout — $29 USD";
+        status.textContent = "Resume your checkout to complete payment. If you already paid, this page will check for confirmation.";
         setTimeout(() => verify(attempt + 1), 2500);
       } else {
-        status.textContent = response.status === 202 ? "Payment is still processing. Check again in a moment; you do not need to pay twice." : (data.error || "We could not confirm this purchase yet. If you paid, contact support with your Paddle receipt.");
+        buy.hidden = false;
+        buy.textContent = current ? "Resume checkout — $29 USD" : "Buy Casework — $29 USD";
+        status.textContent = response.status === 202 ? "Payment has not been confirmed. Resume your existing checkout, or check purchase access again if you already paid." : (data.error || "We could not confirm this purchase yet. If you paid, contact support with your Paddle receipt.");
         retry.hidden = false;
         if (response.status === 404) buy.hidden = false;
       }
@@ -92,10 +96,11 @@
   }
   function openCheckout() {
     if (!ready) return;
-    activeToken = randomToken();
+    activeToken = current?.deliveryToken || randomToken();
     status.textContent = "Complete your payment in Paddle. Your template will appear here afterward.";
     try {
-      Paddle.Checkout.open({ items: [{ priceId: PRICE, quantity: 1 }], customData: { delivery_token: activeToken }, settings: { displayMode: "overlay", theme: "light", locale: "en" } });
+      const settings = { displayMode: "overlay", theme: "light", locale: "en" };
+      Paddle.Checkout.open(current ? { transactionId: current.transactionId, settings } : { items: [{ priceId: PRICE, quantity: 1 }], customData: { delivery_token: activeToken }, settings });
     } catch { status.textContent = "Checkout could not open. Please refresh this page or contact support."; }
   }
   buy.addEventListener("click", openCheckout);
